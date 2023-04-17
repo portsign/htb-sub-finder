@@ -4,6 +4,8 @@ target_ip=
 domain=
 wordlist=
 timeout=4
+total_lines=0
+current_line=0
 
 cleanup_hosts_file() {
     if [ -n "$full_domain" ]; then
@@ -58,6 +60,8 @@ if [ $# -ne 0 ] || [ -z "$target_ip" ] || [ -z "$domain" ] || [ -z "$wordlist" ]
     show_help
 fi
 
+total_lines=$(wc -l < $wordlist)
+
 echo ' _  _ _____ ___   ___ _   _ ___ ___ ___ _  _ ___  ___ ___ '
 echo '| || |_   _| _ ) / __| | | | _ | __|_ _| \| |   \| __| _ \'
 echo '| __ | | | | _ \ \__ | |_| | _ | _| | || .` | |) | _||   /'
@@ -68,9 +72,10 @@ read -p "Press enter to start scanning..."
 trap 'cleanup_hosts_file' INT
 
 while read subdomain; do
+    current_line=$((current_line+1))
     full_domain="${subdomain}.${domain}"
 
-    echo -n "Scanning ${full_domain}             "
+    echo -n "Scanning ${full_domain} (${current_line}/${total_lines})      "
     echo -ne "\r"
 
     echo "${target_ip}    ${full_domain}" >> /etc/hosts
